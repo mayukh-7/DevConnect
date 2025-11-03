@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useAuthStore } from '../store/useAuthStore';
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import { useNavigate } from 'react-router-dom';
 import AuthImagePattern from "../components/AuthImagePattern.jsx";
 import toast from "react-hot-toast";
 
@@ -14,7 +14,9 @@ const SignUpPage = () => {
     email: "",
     password: "",
   });
-  const {signup, isSigningUp} = useAuthStore();
+  const {signup, isSigningUp,login} = useAuthStore();
+
+  const navigate = useNavigate();
 
   const validateForm = ()=>{
     if(!formData.username.trim()) return toast.error("username is required");
@@ -25,13 +27,26 @@ const SignUpPage = () => {
 
     return true;
   }
-  const handleSubmit = (e)=>{
+  const handleSubmit = async(e)=>{
     e.preventDefault();
     
     const success = validateForm()
 
-    if(success === true) signup(formData);
+    if(success === true) {
+       const signupSuccess = await signup(formData);
+            
+            if (signupSuccess) {
+                // 2. If signup worked, call login() to get the cookie
+                // We pass an object that matches what the login page would send
+                await login({
+                    // Use 'email' as the identifier
+                    email: formData.email, 
+                    password: formData.password
+                });
+      
+    }
   }
+}
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-green-200">
       {/* left side */}

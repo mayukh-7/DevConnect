@@ -2,9 +2,12 @@ import React, { useEffect } from 'react';
 import CreatePost from '../components/feed/CreatePost.jsx';
 import { usePostStore } from '../store/usePostStore.js';
 import Post from '../components/feed/Post.jsx';
+import { useAuthStore } from '../store/useAuthStore.js';
 const FeedPage = () => {
   const { posts, fetchPosts } = usePostStore();
+  const {checkAuth} = useAuthStore();
   useEffect(() => {
+    checkAuth()
     fetchPosts()
   }, [])
   return (

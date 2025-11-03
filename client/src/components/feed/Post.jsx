@@ -1,21 +1,30 @@
-// src/components/feed/Post.jsx
 
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageCircle, Send, MoreHorizontal } from 'lucide-react';
-
+import { usePostStore } from '../../store/usePostStore.js';
+import { useAuthStore } from '../../store/useAuthStore.js'
 // We receive the 'post' object as a prop from FeedPage.jsx
 const Post = ({ post }) => {
-    
+
     // Placeholder for username - you might need to adjust based on your post object structure
     // Your backend 'getAllPosts' populates 'createdBy'
-    const user = post.createdBy; 
+    const user = post.createdBy;
     const postDate = new Date(post.createdAt).toLocaleDateString();
+    const { toggleLike} = usePostStore();
+    const { authUser } = useAuthStore();
+
+    const isLiked = authUser? post.likes.includes(authUser._id): false;
+   
+    const handleLike = () => {
+        toggleLike(post._id);
+    }
 
     return (
         <div className="card bg-base-100 shadow-md mb-4">
             <div className="card-body p-4">
-                
+
                 {/* Post Header */}
                 <div className="flex items-center gap-3">
                     <Link to={`/profile/${user.username}`} className="avatar">
@@ -43,10 +52,10 @@ const Post = ({ post }) => {
 
                     {/* Post Image (if it exists) */}
                     {post.image && (
-                        <img 
-                            src={post.image} 
-                            alt="post content" 
-                            className="mt-2 rounded-lg w-full object-cover" 
+                        <img
+                            src={post.image}
+                            alt="post content"
+                            className="mt-2 rounded-lg w-full object-cover"
                         />
                     )}
                 </div>
@@ -54,13 +63,22 @@ const Post = ({ post }) => {
                 {/* Post Actions (Like, Comment) */}
                 <div className="flex justify-between items-center mt-4">
                     <div className="flex gap-4">
-                        <button className="btn btn-ghost btn-sm flex items-center gap-1">
-                            <Heart className="h-5 w-5" />
-                            {/* post.likes.length (You'll add this logic later) */}
+                        <button
+                            className={`btn btn-ghost btn-sm flex items-center gap-1 ${isLiked ? "text-red-500" : ""}`}
+                            onClick={handleLike}
+                        >
+                            {isLiked ? (
+                                <Heart fill="currentColor" className="h-5 w-5" /> // Filled heart
+                            ) : (
+                                <Heart className="h-5 w-5" /> // Outline heart
+                            )}
+
+                            {/* Show the number of likes */}
+                            {post.likes.length}
                         </button>
                         <button className="btn btn-ghost btn-sm flex items-center gap-1">
                             <MessageCircle className="h-5 w-5" />
-                            {/* post.comments.length (You'll add this logic later) */}
+                            {post.comments.length}
                         </button>
                     </div>
                     <button className="btn btn-ghost btn-sm flex items-center gap-1">
