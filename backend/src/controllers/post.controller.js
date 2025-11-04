@@ -29,6 +29,11 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
  const getAllPosts = asyncHandler(async(req,res)=>{
     const posts = await Post.find()
     .populate("createdBy", "username ProfilePic")
+    .populate({
+        path: "comments.createdBy",
+        model: "User", // Make sure this matches your User model name
+        select: "username ProfilePic" // Select only the fields you need
+    })
     .sort({createdAt: -1})
 
 

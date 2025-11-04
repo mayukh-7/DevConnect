@@ -6,7 +6,7 @@ import { useAuthStore } from "./useAuthStore.js";
 export const usePostStore = create((set, get) => ({
     posts: [],
     isLoading: false,
-
+    isLoadingDelete: false,
     createPost: async (formData) => {
         set({ isLoading: true });
         try {
@@ -91,6 +91,59 @@ export const usePostStore = create((set, get) => ({
 
         } catch (error) {
             toast.error(error.response?.data?.message || "Like failed");
+        }
+    },
+
+    addComment: async (postId, text) => {
+        set({ isLoading: true }); // Use the isLoading state
+        try {
+            // 👇 FIX #2: Send 'text' as an object
+            const res = await axiosInstance.post(`/posts/comment/${postId}`, { text });
+
+            // This is the new comment from the database (unpopulated)
+            const newCommentData = res.data.data;
+
+            // 👇 FIX #4: Manually populate the new comment, just like you did in createPost
+            const authUser = useAuthStore.getState().authUser;
+            const newPopulatedComment = {
+                ...newCommentData,
+                createdBy: {
+                    _id: authUser._id,
+                    username: authUser.username,
+                    ProfilePic: authUser.ProfilePic
+                }
+            };
+
+            // 👇 FIX #3: Correctly map and update the state
+            const updatedPosts = get().posts.map((post) => {
+                if (post._id === postId) {
+                    // Return a new post object with the new comment added
+                    return {
+                        ...post,
+                        comments: [newPopulatedComment, ...post.comments] // Add to beginning
+                    };
+                }
+                return post; // Return other posts unchanged
+            });
+
+            set({ posts: updatedPosts });
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to add comment");
+        } finally {
+            set({ isLoading: false }); // Stop loading
+        }
+    },
+
+    deletePost: async(postId)=>{
+        set({isLoadingDelete:true});
+        try {
+             await axiosInstance.delete(`/posts/${postId}`);
+            set({posts: get().posts.filter(p=>p._id !== postId)})
+            toast.success("Post deleted successfully");
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to Delete Posts");
+        }finally{
+            set({isLoadingDelete: false});
         }
     }
 }));

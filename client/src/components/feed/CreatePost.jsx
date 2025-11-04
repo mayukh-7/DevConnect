@@ -85,7 +85,7 @@ const CreatePost = () => {
                 
                 {/* 👇 FIX #2: Added onClick handler and loading/disabled state */}
                 <button 
-                    className={`btn btn-primary btn-sm ${isLoading ? 'btn-disabled' : ''}`}
+                    className={`btn btn-primary btn-sm bg-blue-300${isLoading ? 'btn-disabled' : ''}`}
                     onClick={handleSubmit}
                     disabled={isLoading}
                 >
@@ -93,7 +93,7 @@ const CreatePost = () => {
                         <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                         <>
-                            Post <Send className="h-4 w-4" />
+                            Post<Send className="h-4 w-4" />
                         </>
                     )}
                 </button>

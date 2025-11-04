@@ -1,10 +1,12 @@
 
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageCircle, Send, MoreHorizontal } from 'lucide-react';
 import { usePostStore } from '../../store/usePostStore.js';
 import { useAuthStore } from '../../store/useAuthStore.js'
+import CommentForm from './CommentForm.jsx';
+import CommentList from './CommentList.jsx';
 // We receive the 'post' object as a prop from FeedPage.jsx
 const Post = ({ post }) => {
 
@@ -12,13 +14,19 @@ const Post = ({ post }) => {
     // Your backend 'getAllPosts' populates 'createdBy'
     const user = post.createdBy;
     const postDate = new Date(post.createdAt).toLocaleDateString();
-    const { toggleLike} = usePostStore();
+    const { toggleLike, deletePost, isLoadingDelete } = usePostStore();
     const { authUser } = useAuthStore();
+    const [showComments, setShowComments] = useState(false);
+    const isLiked = authUser ? post.likes.includes(authUser._id) : false;
+    const isOwner = authUser._id === post.createdBy._id;
 
-    const isLiked = authUser? post.likes.includes(authUser._id): false;
-   
-    const handleLike = () => {
-        toggleLike(post._id);
+
+    const handleLike = async () => {
+        await toggleLike(post._id);
+    }
+    const handleDelete = async () => {
+        await deletePost(post._id);
+
     }
 
     return (
@@ -38,9 +46,29 @@ const Post = ({ post }) => {
                         </Link>
                         <p className="text-xs text-base-content/70">{postDate}</p>
                     </div>
-                    <button className="btn btn-ghost btn-sm btn-circle">
-                        <MoreHorizontal className="h-5 w-5" />
-                    </button>
+                    {isOwner && (
+                        <div className="dropdown dropdown-end">
+                            <label tabIndex={0} className="btn btn-ghost btn-sm btn-circle">
+                                <MoreHorizontal className="h-5 w-5" />
+                            </label>
+                            <ul
+                                tabIndex={0}
+                                className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
+                            >
+                                <li>
+                                    <button
+                                        className="text-red-500"
+                                    onClick={handleDelete}
+                                    disabled={isLoadingDelete} 
+                                    >
+                                        {isLoadingDelete ? "Deleting..." : "Delete"}
+                                        
+                                    </button>
+                                </li>
+                                {/* You can add an "Edit" button here later */}
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
                 {/* Post Content */}
@@ -77,7 +105,9 @@ const Post = ({ post }) => {
                             {post.likes.length}
                         </button>
                         <button className="btn btn-ghost btn-sm flex items-center gap-1">
-                            <MessageCircle className="h-5 w-5" />
+                            <MessageCircle className="h-5 w-5"
+                                onClick={() => setShowComments(!showComments)}
+                            />
                             {post.comments.length}
                         </button>
                     </div>
@@ -85,6 +115,15 @@ const Post = ({ post }) => {
                         <Send className="h-5 w-5" />
                     </button>
                 </div>
+                {showComments && (
+                    <div className="mt-4 border-t border-base-300 pt-4">
+                        {/* Form to add a new comment */}
+                        <CommentForm postId={post._id} />
+
+                        {/* List of existing comments */}
+                        <CommentList post={post} />
+                    </div>
+                )}
 
             </div>
         </div>
