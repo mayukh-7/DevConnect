@@ -254,20 +254,30 @@ const updateUserProfilePic = asyncHandler(async(req,res)=>{
 })
 
 const getCurrentUser = asyncHandler(async(req,res)=>{
-    const userId = req.user?._id;
+   const { username } = req.params;
 
-    if(!userId){
-        throw new ApiError(404, "Unauthorized access");
+    let user;
+
+    if (username) {
+        // 2. If a username exists (from /c/:username), find by username
+        user = await User.findOne({ username }).select("-password -refreshToken");
+    } else {
+        // 3. If no username (from /me), find by the ID from the JWT
+        if (!req.user?._id) {
+             throw new ApiError(401, "Unauthorized: No token provided");
+        }
+        user = await User.findById(req.user._id).select("-password -refreshToken");
     }
 
-    const user = await User.findById(userId).select("-password -refreshToken");
-
-    if(!user){
+    // 4. Handle if no user was found
+    if (!user) {
         throw new ApiError(404, "User not found");
     }
-   return res
-   .status(200)
-   .json(new ApiResponse(200, user, "Fetched current user successfully"));
+
+    // 5. Return the found user
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user, "User fetched successfully"));
 })
 export {
     registerUser,

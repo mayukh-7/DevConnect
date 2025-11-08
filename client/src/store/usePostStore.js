@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore.js";
+import { useProfileStore } from "./useProfileStore.js";
 // 'get' is provided by Zustand to access the store's own state
 export const usePostStore = create((set, get) => ({
     posts: [],
@@ -51,43 +52,36 @@ export const usePostStore = create((set, get) => ({
     },
 
     toggleLike: async (postId) => {
-        try {
-            // 2. Get the authUser's ID from the other store
+       try {
             const authUser = useAuthStore.getState().authUser;
             if (!authUser) return toast.error("You must be logged in to like a post");
 
             const userId = authUser._id;
 
-            // 3. Call the backend API (this part was correct)
-            // We don't need 'res' anymore since we won't use the response
+            // Call the backend API
             await axiosInstance.patch(`/posts/like/${postId}`);
 
-            // 4. Manually update the state
-            const { posts } = get();
-            const updatedPosts = posts.map((post) => {
-                // Find the post we liked/unliked
+            // This is the helper function to update a post's likes
+            const updatePostLikes = (post) => {
                 if (post._id === postId) {
-                    // Check if the user ID is already in the likes array
                     const isLiked = post.likes.includes(userId);
-
-                    let newLikes;
-                    if (isLiked) {
-                        // User already liked it, so remove their ID (unlike)
-                        newLikes = post.likes.filter((id) => id !== userId);
-                    } else {
-                        // User hasn't liked it, so add their ID (like)
-                        newLikes = [...post.likes, userId];
-                    }
-
-                    // Return a new post object with the updated likes array
+                    const newLikes = isLiked
+                        ? post.likes.filter((id) => id !== userId) // Unlike
+                        : [...post.likes, userId]; // Like
+                    
                     return { ...post, likes: newLikes };
                 }
-                // Return all other posts unchanged
                 return post;
-            });
+            };
 
-            // 5. Set the new posts array to the state
-            set({ posts: updatedPosts });
+            // 1. UPDATE THE MAIN FEED STORE (usePostStore)
+            const updatedFeedPosts = get().posts.map(updatePostLikes);
+            set({ posts: updatedFeedPosts });
+
+            // 2. UPDATE THE PROFILE PAGE STORE (useProfileStore)
+            const { posts: profilePosts } = useProfileStore.getState();
+            const updatedProfilePosts = profilePosts.map(updatePostLikes);
+            useProfileStore.setState({ posts: updatedProfilePosts });
 
         } catch (error) {
             toast.error(error.response?.data?.message || "Like failed");
@@ -95,16 +89,12 @@ export const usePostStore = create((set, get) => ({
     },
 
     addComment: async (postId, text) => {
-        set({ isLoading: true }); // Use the isLoading state
+        set({ isLoading: true });
         try {
-            // 👇 FIX #2: Send 'text' as an object
             const res = await axiosInstance.post(`/posts/comment/${postId}`, { text });
-
-            // This is the new comment from the database (unpopulated)
             const newCommentData = res.data.data;
-
-            // 👇 FIX #4: Manually populate the new comment, just like you did in createPost
             const authUser = useAuthStore.getState().authUser;
+            
             const newPopulatedComment = {
                 ...newCommentData,
                 createdBy: {
@@ -114,23 +104,30 @@ export const usePostStore = create((set, get) => ({
                 }
             };
 
-            // 👇 FIX #3: Correctly map and update the state
-            const updatedPosts = get().posts.map((post) => {
+            // This is the helper function to update a post's comments
+            const updatePostComments = (post) => {
                 if (post._id === postId) {
-                    // Return a new post object with the new comment added
                     return {
                         ...post,
-                        comments: [newPopulatedComment, ...post.comments] // Add to beginning
+                        comments: [newPopulatedComment, ...post.comments]
                     };
                 }
-                return post; // Return other posts unchanged
-            });
+                return post;
+            };
 
-            set({ posts: updatedPosts });
+            // 2. UPDATE THE MAIN FEED STORE (usePostStore)
+            const updatedFeedPosts = get().posts.map(updatePostComments);
+            set({ posts: updatedFeedPosts });
+
+            // 3. UPDATE THE PROFILE PAGE STORE (useProfileStore)
+            const { posts: profilePosts } = useProfileStore.getState();
+            const updatedProfilePosts = profilePosts.map(updatePostComments);
+            useProfileStore.setState({ posts: updatedProfilePosts });
+
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to add comment");
         } finally {
-            set({ isLoading: false }); // Stop loading
+            set({ isLoading: false });
         }
     },
 

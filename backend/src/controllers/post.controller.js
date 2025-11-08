@@ -65,7 +65,12 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
   const { userId } = req.params;
   const posts = await Post.find({ createdBy: userId })
     .populate("createdBy", "username ProfilePic")
-    .sort({ createdAt: -1 });
+        .populate({ 
+            path: "comments.createdBy",
+            model: "User",
+            select: "username ProfilePic"
+        })
+        .sort({ createdAt: -1 });
   return res
     .status(200)
     .json(new ApiResponse(200, posts, "Fetched user's posts successfully"));

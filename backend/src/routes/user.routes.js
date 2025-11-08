@@ -18,7 +18,7 @@ router.route("/profilepic").patch(verifyJWT, upload.single("ProfilePic"), update
 // router.route("/cover-image").patch(verifyJWT,upload.single("coverImage"),updateUserCoverImage)
 
 // In this route we have to give the same name that we have taken while destructuring because we are taking the data from req.params
-// router.route("/c/:username").get(verifyJWT,getCurrentUser)
+router.route("/c/:username").get(verifyJWT,getCurrentUser)
 router.route("/me").get(verifyJWT,getCurrentUser)
 
 export default router
