@@ -200,27 +200,32 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
 })
 
 const updateAccountDetails = asyncHandler(async(req,res)=>{
-    const {username, email} = req.body
+   // 1. Get the data from the form
+    const { username, bio } = req.body; 
 
-    if(!username && !email)
-    {
-        throw new ApiError(400, "Please give a proper updated username or email")
-    }
-
-    const user = User.findByIdAndUpdate(
-        req.user?._id,
+    // 2. Find the user by their ID (from the JWT) and update them
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user._id, // Get the logged-in user's ID from the verifyJWT middleware
         {
             $set: {
-                username,
-                email
+                username: username,
+                bio: bio
+                // Add any other fields you are updating
             }
         },
-        {new: true}
-    ).select("-password")
+        { new: true } // This option returns the *new, updated* document
+    ).select("-password -refreshToken"); // IMPORTANT: Don't send the password back!
 
+    if (!updatedUser) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // 3. ✅ THE FIX ✅
+    // Send the 'updatedUser' object, which is plain JSON-safe data.
+    // This is your line 225.
     return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Account details updated successfully"))
+        .status(200)
+        .json(new ApiResponse(200, updatedUser, "Profile updated successfully"));
 })
 
 const updateUserProfilePic = asyncHandler(async(req,res)=>{

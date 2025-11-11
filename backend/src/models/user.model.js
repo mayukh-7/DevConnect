@@ -17,6 +17,9 @@ const userSchema = new Schema({
         lowercase: true,
         trim: true,
     },
+    bio: {
+        type: String,
+    },
     ProfilePic:{
         type: String, // cloudinary url
     },

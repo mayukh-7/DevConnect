@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Edit } from 'lucide-react';
-
+import EditProfileModal from './EditProfileModal.jsx';
 // Receive profileUser as a prop
 const ProfileHeader = ({ profileUser }) => {
     // --- Add your logic here ---
@@ -14,11 +14,15 @@ const ProfileHeader = ({ profileUser }) => {
     if (!profileUser) {
         return <p>Loading profile...</p>; 
     }
+    const openModal = () => {
+        document.getElementById('edit_profile_modal').showModal();
+    };
     // ----------------------------
     // const { authUser } = useAuthStore(); // Placeholder for your logic
     // const isOwner = authUser?._id === profileUser?._id; // Placeholder
 
     return (
+        <>
         <div className="card bg-base-100 shadow-md p-6">
             <div className="flex flex-col md:flex-row items-center">
                 {/* Profile Avatar */}
@@ -37,7 +41,7 @@ const ProfileHeader = ({ profileUser }) => {
                     <p className="text-base-content/70">@{profileUser?.username}</p>
                     
                     {/* Placeholder for Bio - you can add this to your backend later */}
-                    <p className="mt-2">This is a placeholder bio. User can edit this later.</p>
+                    <p className="mt-2">{profileUser.bio || "This is a placeholder bio. User can edit this later."}</p>
 
                     {/* Placeholder for Stats */}
                     <div className="flex gap-4 mt-4 justify-center md:justify-start">
@@ -53,13 +57,17 @@ const ProfileHeader = ({ profileUser }) => {
                 {/* Edit Profile Button */}
                 {/* Only show this button if the authUser is the owner of this profile */}
                 {isOwner && (
-                    <button className="btn btn-outline btn-sm mt-4 md:mt-0">
+                    <button className="btn btn-outline btn-sm mt-4 md:mt-0"
+                    onClick={openModal}
+                    >
                         <Edit className="h-4 w-4" />
                         Edit Profile
                     </button>
                 )}
             </div>
         </div>
+        {isOwner && <EditProfileModal profileUser={profileUser}/>}
+    </>
     );
 };
 
