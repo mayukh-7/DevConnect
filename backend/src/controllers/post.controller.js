@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-
+import { Notification } from "../models/notification.model.js";
  const createPost = asyncHandler(async(req,res)=>{
     const {caption} = req.body;
     const userId = req.user?._id;
@@ -94,10 +94,17 @@ const toggleLikePost = asyncHandler(async (req, res) => {
     } else {
         // If not liked, like (push userId to array)
         post.likes.push(userId);
+        if (post.createdBy.toString() !== userId.toString()) {
+            await Notification.create({
+                from: userId,
+                to: post.createdBy,
+                type: "like",
+                post: postId,
+            });
+        }
     }
 
     await post.save();
-
     return res
         .status(200)
         .json(new ApiResponse(200, { isLiked: !isLiked }, `Post ${isLiked ? 'unliked' : 'liked'} successfully`));
@@ -131,6 +138,14 @@ const addComment = asyncHandler(async (req, res) => {
 
     // Return the newly added comment (which is the last one in the array)
     const newComment = post.comments[post.comments.length - 1];
+    if (post.createdBy.toString() !== userId.toString()) {
+        await Notification.create({
+            from: userId,
+            to: post.createdBy,
+            type: "comment",
+            post: postId,
+        });
+    }
 
     return res
         .status(201)

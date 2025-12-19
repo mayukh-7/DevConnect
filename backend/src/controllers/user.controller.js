@@ -3,6 +3,7 @@ import {ApiError}from "../utils/ApiError.js"
 import {User} from "../models/user.model.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
+import { Notification } from "../models/notification.model.js";
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
 
@@ -284,6 +285,65 @@ const getCurrentUser = asyncHandler(async(req,res)=>{
         .status(200)
         .json(new ApiResponse(200, user, "User fetched successfully"));
 })
+const searchUsers = asyncHandler(async(req,res)=>{
+    const {query} = req.params;
+    
+    if(!query){
+        return res.status(200).json(new ApiResponse(200, [], "Query is empty"));
+    }
+
+    const users = await User.find({
+        username: {$regex: query, $options: "i"}
+    }).select("username ProfilePic");
+
+    return res
+          .status(200)
+          .json(new ApiResponse(200, users, "Users fetched successfully"));
+})
+
+
+
+ const toggleFollow = asyncHandler(async (req, res) => {
+    const { targetUserId } = req.params; // The person you want to follow
+    const currentUserId = req.user._id;  // You (from verifyJWT)
+
+    if (targetUserId === currentUserId.toString()) {
+        throw new ApiError(400, "You cannot follow yourself");
+    }
+
+    const targetUser = await User.findById(targetUserId);
+    const currentUser = await User.findById(currentUserId);
+
+    if (!targetUser) throw new ApiError(404, "User not found");
+
+    // Check if already following
+    const isFollowing = currentUser.following.includes(targetUserId);
+
+    if (isFollowing) {
+        // --- UNFOLLOW LOGIC ---
+        // Remove target from my 'following'
+        currentUser.following = currentUser.following.filter(id => id.toString() !== targetUserId);
+        // Remove me from target's 'followers'
+        targetUser.followers = targetUser.followers.filter(id => id.toString() !== currentUserId.toString());
+    } else {
+        // --- FOLLOW LOGIC ---
+        currentUser.following.push(targetUserId);
+        targetUser.followers.push(currentUserId);
+        
+        await Notification.create({
+                from: currentUserId,
+                to: targetUserId,
+                type: "follow"
+        });
+    }
+
+    await currentUser.save();
+    await targetUser.save();
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, isFollowing ? "Unfollowed successfully" : "Followed successfully")
+    );
+});
 export {
     registerUser,
     loginUser,
@@ -292,5 +352,7 @@ export {
     changeCurrentPassword,
     updateAccountDetails,
     updateUserProfilePic,
-    getCurrentUser
+    getCurrentUser,
+    searchUsers,
+    toggleFollow
 }

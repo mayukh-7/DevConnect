@@ -74,6 +74,35 @@ export const useAuthStore = create((set,get)=>({
     }finally{
       set({isSigningUp: false});
     }
-  }
+  },
+
+  // src/store/useAuthStore.js
+
+  updateProfilePic: async (file) => {
+    set({ isUpdatingProfile: true });
+    try {
+      // 1. Create FormData because we are sending a file
+      const formData = new FormData();
+      formData.append("ProfilePic", file);
+
+      // 2. Call your backend route
+      const res = await axiosInstance.patch("/users/profilepic", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      // 3. Update both stores with the new user data (which contains the new image URL)
+      set({ authUser: res.data.data });
+      useProfileStore.setState({ profileUser: res.data.data });
+      
+      toast.success("Profile picture updated successfully");
+    } catch (error) {
+      console.log("Error updating profile pic:", error);
+      toast.error(error.response?.data?.message || "Failed to update profile picture");
+    } finally {
+      set({ isUpdatingProfile: false });
+    }
+  },
 
 }));

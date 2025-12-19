@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { changeCurrentPassword,  getCurrentUser,  loginUser, logoutUser, refreshAccessToken, registerUser, updateAccountDetails} from "../controllers/user.controller.js";
+import { changeCurrentPassword,  getCurrentUser,  loginUser, logoutUser, refreshAccessToken, registerUser, searchUsers, toggleFollow, updateAccountDetails} from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/Auth.middleware.js";
 import { updateUserProfilePic } from "../controllers/user.controller.js";
@@ -20,5 +20,6 @@ router.route("/profilepic").patch(verifyJWT, upload.single("ProfilePic"), update
 // In this route we have to give the same name that we have taken while destructuring because we are taking the data from req.params
 router.route("/c/:username").get(verifyJWT,getCurrentUser)
 router.route("/me").get(verifyJWT,getCurrentUser)
-
+router.route("/search/:query").get(verifyJWT, searchUsers)
+router.route("/follow/:targetUserId").post(verifyJWT,toggleFollow)
 export default router
