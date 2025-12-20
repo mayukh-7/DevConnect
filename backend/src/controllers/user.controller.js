@@ -231,18 +231,18 @@ const updateAccountDetails = asyncHandler(async(req,res)=>{
         .json(new ApiResponse(200, updatedUser, "Profile updated successfully"));
 })
 
-const updateUserProfilePic = asyncHandler(async(req,res)=>{
-    const profilePicLocalPath = req.file?.path
+const updateUserProfilePic = asyncHandler(async(req, res) => {
+    // Access the buffer from memory storage instead of path
+    const fileBuffer = req.file?.buffer 
     
-    if(!profilePicLocalPath)
-    {
+    if (!fileBuffer) {
         throw new ApiError(400, "Profile picture file is missing")
     }
     
-    const profilePic = await uploadOnCloudinary(profilePicLocalPath)
+    // Pass the buffer to the new stream-based upload function
+    const profilePic = await uploadOnCloudinary(fileBuffer)
     
-    if(!profilePic.url)
-    {
+    if (!profilePic || !profilePic.url) {
         throw new ApiError(400, "Error while uploading profile picture")
     }
     
@@ -253,12 +253,12 @@ const updateUserProfilePic = asyncHandler(async(req,res)=>{
                 ProfilePic: profilePic.url
             }
         },
-        {new: true}
+        { new: true }
     ).select("-password")
     
     return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Profile picture updated successfully"))
+        .status(200)
+        .json(new ApiResponse(200, user, "Profile picture updated successfully"))
 })
 
 const getCurrentUser = asyncHandler(async(req,res)=>{
