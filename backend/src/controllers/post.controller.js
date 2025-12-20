@@ -4,27 +4,35 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Notification } from "../models/notification.model.js";
- const createPost = asyncHandler(async(req,res)=>{
-    const {caption} = req.body;
-    const userId = req.user?._id;
-    if (!userId) {
+ const createPost = asyncHandler(async (req, res) => {
+  const { caption } = req.body;
+  const userId = req.user?._id;
+
+  if (!userId) {
     throw new ApiError(401, "Unauthorized: Please log in");
   }
-  const imageUrl = req.file?.path;
-//   if(!imageUrl){
-//     throw new ApiError(402, "Not a valid image");
-//   }
 
-  const uploadedImage = await uploadOnCloudinary(imageUrl);
+  // 1. Change from .path to .buffer for Memory Storage
+  const fileBuffer = req.file?.buffer; 
+
+  let imageUrl = "";
+  
+  if (fileBuffer) {
+    // 2. Pass the buffer to the updated stream-based Cloudinary function
+    const uploadedImage = await uploadOnCloudinary(fileBuffer);
+    imageUrl = uploadedImage?.url || "";
+  }
+
   const post = await Post.create({
     caption,
-    image: uploadedImage?.url || "",
+    image: imageUrl,
     createdBy: userId,
   });
+
   return res
-  .status(201)
-  .json(new ApiResponse(201, post, "Post created successfully"));
- });
+    .status(201)
+    .json(new ApiResponse(201, post, "Post created successfully"));
+});
 
  const getAllPosts = asyncHandler(async(req,res)=>{
     const posts = await Post.find()
