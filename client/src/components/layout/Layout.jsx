@@ -33,13 +33,13 @@ const Layout = ({ children }) => {
                 <aside className="w-72 hidden lg:block p-4">
                     <div className="sticky top-20">
                         {/* Placeholder for "Who to follow", etc. */}
-                        <div className="card bg-base-100 shadow-md p-4">
-                            <h2 className="font-bold text-lg mb-2">Who to follow</h2>
+                        {/* <div className="card bg-base-100 shadow-md p-4">
+                            {/* <h2 className="font-bold text-lg mb-2">Who to follow</h2>
                             <p className="text-sm text-base-content/70">
                                 Suggestions coming soon!
-                            </p>
+                            </p> */}
                             {/* You can map user suggestions here later */}
-                        </div>
+                        {/* </div> */} 
                     </div>
                 </aside>
 

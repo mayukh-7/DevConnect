@@ -11,8 +11,7 @@ const FeedPage = () => {
     fetchPosts()
   }, [])
   return (
-    // REMOVED: "max-w-xl mx-auto"
-    // This div is now just a simple wrapper
+  
     <div>
       {/* 1. Create Post Component */}
       <CreatePost />

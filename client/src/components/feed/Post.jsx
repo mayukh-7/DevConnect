@@ -19,7 +19,7 @@ const Post = ({ post }) => {
     const [showComments, setShowComments] = useState(false);
     const isLiked = authUser ? post.likes.includes(authUser._id) : false;
     const isOwner = authUser._id === post.createdBy._id;
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleLike = async () => {
         await toggleLike(post._id);
@@ -80,11 +80,16 @@ const Post = ({ post }) => {
 
                     {/* Post Image (if it exists) */}
                     {post.image && (
-                        <img
-                            src={post.image}
-                            alt="post content"
-                            className="mt-2 rounded-lg w-full object-cover"
-                        />
+                        <div 
+                            className="cursor-pointer group relative"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            <img
+                                src={post.image}
+                                alt="post content"
+                                className="rounded-lg w-full object-cover max-h-[500px] transition-opacity group-hover:opacity-95"
+                            />
+                        </div>
                     )}
                 </div>
 
@@ -111,9 +116,9 @@ const Post = ({ post }) => {
                             {post.comments.length}
                         </button>
                     </div>
-                    <button className="btn btn-ghost btn-sm flex items-center gap-1">
+                    {/* <button className="btn btn-ghost btn-sm flex items-center gap-1">
                         <Send className="h-5 w-5" />
-                    </button>
+                    </button> */}
                 </div>
                 {showComments && (
                     <div className="mt-4 border-t border-base-300 pt-4">
@@ -126,6 +131,31 @@ const Post = ({ post }) => {
                 )}
 
             </div>
+            {isModalOpen && (
+                <div 
+                    className="modal modal-open flex items-center justify-center z-[100]"
+                    onClick={() => setIsModalOpen(false)} // Click anywhere outside to close
+                >
+                    <div className="modal-box p-0 bg-transparent shadow-none max-w-5xl relative">
+                        {/* Close button */}
+                        <button 
+                            className="btn btn-sm btn-circle absolute right-2 top-2 z-10"
+                            onClick={() => setIsModalOpen(false)}
+                        >
+                            ✕
+                        </button>
+                        
+                        {/* The Large Image */}
+                        <img 
+                            src={post.image} 
+                            alt="Full size" 
+                            className="w-full h-auto max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                        />
+                    </div>
+                    {/* Background Blur Overlay */}
+                    <div className="modal-backdrop bg-black/80 cursor-zoom-out"></div>
+                </div>
+            )}
         </div>
     );
 };

@@ -80,7 +80,7 @@ const CreatePost = () => {
                          // Good practice to only accept images
                     />
                     <Image className="h-5 w-5" />
-                    Photo/Video
+                    Photo
                 </label>
                 
                 {/* 👇 FIX #2: Added onClick handler and loading/disabled state */}
