@@ -93,7 +93,9 @@ const loginUser = asyncHandler( async (req,res)=>{
    // this make the cookie modifiable only by the server , the client side can only see the cookie but cannot modify it.
    const options = {
         httpOnly : true,
-        secure: true
+        secure: true,
+        sameSite: "none",  // Must be "none" to work between Netlify and Vercel
+        maxAge: 24 * 60 * 60 * 1000
    }
 
    return res

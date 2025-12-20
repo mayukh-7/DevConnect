@@ -15,9 +15,9 @@ app.use(express.urlencoded({extended:true, limit: "100mb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 app.use(cors({
-    origin:[ "http://localhost:5173","https://devconnect-24.netlify.app"],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    origin:[ "https://devconnect-24.netlify.app"],
     credentials:true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 }));
 
 import userRouter from './routes/user.routes.js';
