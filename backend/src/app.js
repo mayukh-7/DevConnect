@@ -26,4 +26,10 @@ import notificationRouter from "./routes/notification.routes.js";
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/notifications", notificationRouter);
+app.get('/', (req,res)=>{
+    res.send({
+        activeStatus:true,
+        error:false,
+    })
+})
 export { app }
