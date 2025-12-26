@@ -7,7 +7,7 @@ const Sidebar = () => {
     const { authUser } = useAuthStore();
     const { notifications } = useNotificationStore();
     return (
-        <ul className="menu bg-base-100 w-full rounded-box p-2">
+        <ul className="menu bg-base-100 w-full rounded-2xl p-2 shadow-sm border border-base-content/5">
             <li>
                 <NavLink to="/" end> {/* 'end' prop ensures active class only for exact match */}
                     <Home className="h-5 w-5" />

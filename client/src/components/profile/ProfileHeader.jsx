@@ -34,7 +34,7 @@ const ProfileHeader = ({ profileUser }) => {
 
     return (
         <>
-            <div className="card bg-base-100 shadow-md p-6">
+            <div className="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 border border-base-content/5 p-6 rounded-2xl">
                 <div className="flex flex-col md:flex-row items-center">
                     {/* Profile Avatar */}
                     <div className="relative group mb-4 md:mb-0 md:mr-6">

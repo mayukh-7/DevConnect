@@ -24,7 +24,7 @@ const CommentList = ({ post }) => {
                             </div>
                         </div>
                         {/* Comment Text */}
-                        <div className="bg-base-200 rounded-lg px-3 py-2 flex-1">
+                        <div className="bg-base-200/50 rounded-xl px-3 py-2 flex-1">
                             <Link to={`/profile/${comment.createdBy.username}`} className="font-semibold text-sm hover:underline">
                                 {comment.createdBy.username}
                             </Link>

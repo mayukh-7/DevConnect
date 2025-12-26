@@ -46,7 +46,7 @@ const CreatePost = () => {
     };
 
     return (
-        <div className="card bg-base-100 shadow-md p-4">
+        <div className="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 border border-base-content/5 p-4 rounded-2xl mb-4">
             <div className="flex gap-4">
                 <div className="avatar">
                     <div className="w-12 h-12 rounded-full">

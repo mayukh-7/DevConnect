@@ -30,7 +30,7 @@ const Post = ({ post }) => {
     }
 
     return (
-        <div className="card bg-base-100 shadow-md mb-4">
+        <div className="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 border border-base-content/5 mb-4 rounded-2xl">
             <div className="card-body p-4">
 
                 {/* Post Header */}
