@@ -33,7 +33,7 @@ const Navbar = () => {
     };
 
     return (
-        <div className="navbar bg-base-100 fixed top-0 left-0 right-0 z-50 shadow-md h-16 px-2 sm:px-4">
+        <div className="navbar fixed top-0 left-0 right-0 z-50 h-16 px-4 sm:px-6 bg-base-100/80 backdrop-blur-lg border-b border-base-content/10 transition-all duration-300">
             
             {/* --- MOBILE SEARCH VIEW (Only shows when search icon is clicked on small screens) --- */}
             {isMobileSearchVisible ? (
@@ -49,7 +49,7 @@ const Navbar = () => {
                             autoFocus
                             type="text"
                             placeholder="Search users..."
-                            className="input input-bordered w-full h-10 pr-10"
+                            className="input input-bordered w-full h-10 pr-10 rounded-full bg-base-200 border-transparent focus:border-primary focus:bg-base-100 transition-all"
                             value={query}
                             onChange={handleSearch}
                         />
@@ -89,7 +89,7 @@ const Navbar = () => {
                                 <input
                                     type="text"
                                     placeholder="Search users..."
-                                    className="input input-bordered w-full pl-10 h-10"
+                                    className="input input-bordered w-full pl-10 h-10 rounded-full bg-base-200 border-transparent focus:border-primary focus:bg-base-100 transition-all"
                                     value={query}
                                     onChange={handleSearch}
                                 />
